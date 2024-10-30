@@ -1,0 +1,130 @@
+import { BadRequestException } from "http-errors";
+import { UserService } from "./user.service.js"; 
+import { ALREADY_REGISTERED_ERROR } from "./user.constant.js"; 
+
+export class UserController {
+  constructor() {
+    this.userService = new UserService();
+  }
+
+  async register(req, res) {
+    const dto = req.body;
+    const user = await this.userService.findUser(dto.email);
+    if (user) {
+      throw new BadRequestException(ALREADY_REGISTERED_ERROR);
+    }
+    return res.json(await this.userService.registerUser(dto));
+  }
+
+  async login(req, res) {
+    const { email: login, password } = req.body;
+    const { email } = await this.userService.validateUser(login, password);
+    return res.json(await this.userService.login(email));
+  }
+
+  async getCart(req, res) {
+    const email = req.userEmail; 
+    const { offset, limit } = req.query;
+    const options = { offset, limit };
+    return res.json(await this.userService.getCart(email, options));
+  }
+
+  async getFavorites(req, res) {
+    const email = req.userEmail;
+    const { offset, limit } = req.query;
+    const options = { offset, limit };
+    return res.json(await this.userService.getFavorites(email, options));
+  }
+
+  async getOrders(req, res) {
+    const email = req.userEmail;
+    const { offset, limit } = req.query;
+    const options = { offset, limit };
+    return res.json(await this.userService.getOrders(email, options));
+  }
+
+  async selectAll(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    return res.json(await this.userService.selectAll(email, dto.on));
+  }
+
+  async getUserData(req, res) {
+    const email = req.userEmail;
+    return res.json(await this.userService.getUserData(email));
+  }
+
+  async updateUserData(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const result = await this.userService.updateUserData(dto, email);
+    return res.json(result);
+  }
+
+  async updateDelivery(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const result = await this.userService.updateDelivery(dto, email);
+    return res.json(result);
+  }
+
+  async deleteSelected(req, res) {
+    const email = req.userEmail;
+    const result = await this.userService.deleteSelected(email);
+    return res.json(result);
+  }
+
+  async addToCart(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const id = dto.id;
+    return res.json(await this.userService.addToCart(id, email));
+  }
+
+  async addToCartGetAuto(req, res) {
+    const dto = req.body;
+    const id = dto.id;
+    return res.json(await this.userService.addToCart(id));
+  }
+
+  async toggleSelect(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const id = dto.id;
+    return res.json(await this.userService.toggleSelect(email, id));
+  }
+
+  async addFavorites(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const id = dto.id;
+    return res.json(await this.userService.toggleFavorites(id, email));
+  }
+
+  async toggleFavoritesGetAuto(req, res) {
+    const dto = req.body;
+    const id = dto.id;
+    return res.json(await this.userService.toggleFavorites(id));
+  }
+
+  async addOrder(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    return res.json(await this.userService.addOrder(email, dto.ids));
+  }
+
+  async subFromCart(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const id = dto.id;
+    return res.json(await this.userService.subFromCart(email, id));
+  }
+
+  async removeFromCart(req, res) {
+    const email = req.userEmail;
+    const dto = req.body;
+    const id = dto.id;
+    const result = await this.userService.removeFromCart(email, id);
+    return res.json(result);
+  }
+}
