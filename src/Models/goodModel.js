@@ -1,10 +1,5 @@
 import { Schema, model } from "mongoose"
 
-const characteristicSchema = new Schema({
-    name: { type: String, required: true },
-    value: { type: String, required: true }
-});
-
 const GoodModel = new Schema({
     image: {type: [String], required: true},
     price: {type: Number, required: true},
@@ -37,4 +32,4 @@ const GoodModel = new Schema({
     discount: {type: Number, required: false}
 })
 
-export default Good = model("GoodModel", GoodModel)
+export default model("Good", GoodModel, "Good")

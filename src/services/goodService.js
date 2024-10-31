@@ -1,3 +1,5 @@
+import GoodModel from "../models/goodModel.js"
+
 // Сервис для получения товаров из монгод
 
 // import * as path from "path";
@@ -33,7 +35,7 @@ export class GoodService {
     const existsFilter =
       this.buildMatchCondition(value).category ||
       this.buildMatchCondition(value);
-    return await this.goodModel
+    return await GoodModel
       .aggregate([
         {
           $match: existsFilter,
@@ -167,7 +169,7 @@ export class GoodService {
     dto,
     options,
   ) {
-    const query = this.goodModel.find({
+    const query = GoodModel.find({
       category: { $in: dto.category },
     });
     if (options.offset) {
@@ -184,7 +186,7 @@ export class GoodService {
     dto,
     options,
   ) {
-    const query = this.goodModel.find({ _id: { $in: dto.ids } });
+    const query = GoodModel.find({ _id: { $in: dto.ids } });
     if (options.offset) {
       query.skip(options.offset);
     }
@@ -199,7 +201,7 @@ export class GoodService {
     dto,
     options,
   ) {
-    const query = this.goodModel.find({ [dto]: { $exists: true } });
+    const query = GoodModel.find({ [dto]: { $exists: true } });
     if (options.offset) {
       query.skip(options.offset);
     }
@@ -211,13 +213,13 @@ export class GoodService {
   }
 
   async getGoodById(id) {
-    return this.goodModel.findById(id).exec();
+    return GoodModel.findById(id).exec();
   }
   async getGoodByIdForUser(
     id,
     email,
   ) {
-    const result = await this.goodModel
+    const result = await GoodModel
       .aggregate([
         {
           $match: { $expr: { $eq: [{ $toString: "$_id" }, id] } },
@@ -314,7 +316,7 @@ export class GoodService {
   // Более интуитивный!
 
   // async getGoodById(id: string, email: string): Promise<GoodModel | void> {
-  //   const result = await this.goodModel
+  //   const result = await GoodModel
   //     .aggregate([
   //       // Находим товар по его ID
   //       {
@@ -422,6 +424,6 @@ export class GoodService {
   //   const filePath = path.join(process.cwd(), "./src/database", "data.json");
   //   const rawdata = fs.readFileSync(filePath, "utf8");
   //   const data: { good: GoodDto[] } = JSON.parse(rawdata);
-  //   await this.goodModel.insertMany(data.good);
+  //   await GoodModel.insertMany(data.good);
   // }
 }

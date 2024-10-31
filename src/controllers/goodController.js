@@ -1,22 +1,21 @@
-import GoodService from '../services/goodService.js'; 
-import { userEmail } from '../middlewares/emailMiddleware.js'; 
+import { GoodService } from '../services/goodService.js';
 
-class GoodController {
+export class GoodController {
     constructor() {
-        this.goodService = new GoodService();
+        this.goodModel = new GoodService();
     }
 
     async goodsbySale(req, res) {
-        const email = req.userEmail; 
+        const email = req.userEmail;
         const offset = req.query.offset ? parseInt(req.query.offset) : undefined;
         const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
         const options = { offset, limit };
 
         if (!email) {
-            const goods = await this.goodService.getGoodsByDiscountСlassification("sale", options);
+            const goods = await this.goodModel.getGoodsByDiscountСlassification("sale", options);
             return res.json(goods);
         }
-        const goods = await this.goodService.getGoodsByDiscountСlassificationUser(email, "sale", options);
+        const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, "sale", options);
         return res.json(goods);
     }
 
@@ -27,10 +26,10 @@ class GoodController {
         const options = { offset, limit };
 
         if (!email) {
-            const goods = await this.goodService.getGoodsByDiscountСlassification("discount", options);
+            const goods = await this.goodModel.getGoodsByDiscountСlassification("discount", options);
             return res.json(goods);
         }
-        const goods = await this.goodService.getGoodsByDiscountСlassificationUser(email, "discount", options);
+        const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, "discount", options);
         return res.json(goods);
     }
 
@@ -39,10 +38,10 @@ class GoodController {
         const email = req.userEmail;
 
         if (!email) {
-            const good = await this.goodService.getGoodById(id);
+            const good = await this.goodModel.getGoodById(id);
             return res.json(good);
         }
-        const good = await this.goodService.getGoodByIdForUser(id, email);
+        const good = await this.goodModel.getGoodByIdForUser(id, email);
         return res.json(good);
     }
 
@@ -51,10 +50,10 @@ class GoodController {
         const email = req.userEmail;
 
         if (!email) {
-            const goods = await this.goodService.getGoodsByCategory(req.body, options);
+            const goods = await this.goodModel.getGoodsByCategory(req.body, options);
             return res.json(goods);
         }
-        const goods = await this.goodService.getGoodsByDiscountСlassificationUser(email, { category }, options);
+        const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, { category }, options);
         return res.json(goods);
     }
 
@@ -64,9 +63,7 @@ class GoodController {
         const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
         const options = { offset, limit };
 
-        const goods = await this.goodService.getGoodsByIds(dto, options);
+        const goods = await this.goodModel.getGoodsByIds(dto, options);
         return res.json(goods);
     }
 }
-
-export default GoodController; 

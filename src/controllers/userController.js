@@ -1,29 +1,35 @@
-import { BadRequestException } from "http-errors";
-import { UserService } from "./user.service.js"; 
-import { ALREADY_REGISTERED_ERROR } from "./user.constant.js"; 
+import { UserService } from "../services/userService.js";
+import { ALREADY_REGISTERED_ERROR } from "../constants.js";
+import { BadRequestException } from "../errors/BadRequestException.js"
 
 export class UserController {
   constructor() {
     this.userService = new UserService();
   }
-
   async register(req, res) {
     const dto = req.body;
     const user = await this.userService.findUser(dto.email);
     if (user) {
-      throw new BadRequestException(ALREADY_REGISTERED_ERROR);
+      return new BadRequestException(res, ALREADY_REGISTERED_ERROR);
     }
     return res.json(await this.userService.registerUser(dto));
   }
 
   async login(req, res) {
     const { email: login, password } = req.body;
-    const { email } = await this.userService.validateUser(login, password);
-    return res.json(await this.userService.login(email));
+    try {
+      const { email } = await this.userService.validateUser(login, password);
+      return res.json(await this.userService.login(email));
+    } catch (err) {
+      return res.status(err.status).json({
+        message: err.message,
+      });
+    }
   }
 
+
   async getCart(req, res) {
-    const email = req.userEmail; 
+    const email = req.userEmail;
     const { offset, limit } = req.query;
     const options = { offset, limit };
     return res.json(await this.userService.getCart(email, options));

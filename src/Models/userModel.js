@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+import { Schema, model } from "mongoose"
 
 
-const IUserGoodSchema = new mongoose.Schema({
+const IUserGoodSchema = new Schema({
     goodId: { type: String, required: true },
     count: { type: Number, required: true },
     favorite: { type: Boolean, default: false },
@@ -9,14 +9,14 @@ const IUserGoodSchema = new mongoose.Schema({
 });
 
 
-const IInfoPublikSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    city: { type: String, required: true },
+const IInfoPublikSchema = new Schema({
+    name: { type: String, required: false },
+    city: { type: String, required: false },
     age: { type: Number, required: false }
 });
 
 
-const IInfoPrivateSchema = new mongoose.Schema({
+const IInfoPrivateSchema = new Schema({
     phone: { type: String, required: false },
     dateOfBirth: { type: Date, required: false },
     email: { type: String, required: true },
@@ -26,14 +26,14 @@ const IInfoPrivateSchema = new mongoose.Schema({
 });
 
 
-const IDeliverySchema = new mongoose.Schema({
+const IDeliverySchema = new Schema({
     address: { type: String, required: false },
-    pickUpPoin: { type: String, required: true },
+    pickUpPoin: { type: String, required: false },
     choice: { type: String, enum: ["address", "pickUpPoin"], required: true }
 });
 
 
-const UserModelSchema = new mongoose.Schema({
+const UserModel = new Schema({
     registered: { type: Boolean, required: true },
     publik: { type: IInfoPublikSchema, required: true },
     privates: { type: IInfoPrivateSchema, required: true },
@@ -44,4 +44,4 @@ const UserModelSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default UserModel = mongoose.model('User', UserModelSchema);
+export default model('User', UserModel, 'User');

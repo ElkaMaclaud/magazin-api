@@ -8,16 +8,14 @@ export default function (req, res, next) {
         return next();
     }
     try {
-        const token = req.headers.authorization.split(" ")[1];
-        if (!token) {
-            return res.status(403).json({ message: "Пользователь не авторизован" });
-        }
-        const decodedData = jwt.verify(token, process.env.SECRET);
-        req.user = decodedData;
-        req.userEmail = decodedData.email;
+        if (req.headers.authorization) {
+            const token = req.headers.authorization.split(" ")[1];
+            const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = decodedData;
+            req.userEmail = decodedData.email;
+        } 
         next();
     } catch (e) {
         console.log(e);
-        return res.status(403).json({ message: "Пользователь не авторизован" });
     }
 }

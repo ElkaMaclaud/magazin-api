@@ -1,12 +1,15 @@
-import { IDelivery, IInfoPrivate, UserModel } from "./user.model";
-import { genSalt, hash, compare } from "bcryptjs";
-import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "./user.constant";
+import bcrypt  from "bcryptjs";
+import jwt from 'jsonwebtoken';
+import UserModel from "../models/userModel.js"
+import dotenv from "dotenv"
+import { UnauthorizedException } from "../errors/UnauthorizedException.js"
+import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "../constants.js";
 
-@Injectable()
+dotenv.config()
 export class UserService {
   async registerUser(dto, registered) {
-    const salt = await genSalt(10);
-    const newUser = await this.userModel.create({
+    const salt = await bcrypt.genSalt(10);
+    const newUser = await UserModel.create({
       publik: {
         name: dto.name,
         city: "",
@@ -17,8 +20,8 @@ export class UserService {
         dateOfBirth: dto.dateofBirth ? new Date(dto.dateofBirth) : new Date(),
         role: "user",
         email: dto.email,
-        passwordHash: await hash(dto.password, salt),
-      }, 
+        passwordHash: await bcrypt.hash(dto.password, salt),
+      },
       favorites: [],
       cart: [],
       order: [],
@@ -34,23 +37,23 @@ export class UserService {
   }
 
   async findUser(email) {
-    return this.userModel.findOne({ "privates.email": email }).exec();
+    return UserModel.findOne({ "privates.email": email }).exec();
   }
-
   async validateUser(
+    res,
     email,
     password,
   ) {
     const user = await this.findUser(email);
     if (!user) {
-      throw new UnauthorizedException(USER_NOT_FOUND_ERROR);
+      throw new UnauthorizedException(res, USER_NOT_FOUND_ERROR);
     }
-    const isCorrectPassword = await compare(
+    const isCorrectPassword = await bcrypt.compare(
       password,
       user.privates.passwordHash,
     );
     if (!isCorrectPassword) {
-      throw new UnauthorizedException(WRONG_PASSWORD_ERROR);
+      throw new UnauthorizedException(res, WRONG_PASSWORD_ERROR);
     }
     return { email: user.privates.email };
   }
@@ -58,7 +61,7 @@ export class UserService {
   async login(email) {
     const payload = { email };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "24h"}),
     };
   }
 
@@ -68,7 +71,7 @@ export class UserService {
   async getData(email, field, options) {
     const offset = options.offset || 0
     const limit = options.limit || 50
-    const result = await this.userModel
+    const result = await UserModel
       .aggregate([
         { $match: { "privates.email": email } },
         {
@@ -200,13 +203,13 @@ export class UserService {
   }
 
   async getUserData(email) {
-    return this.userModel
-      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1})
+    return UserModel
+      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1 })
       .exec();
   }
 
   async updateUserData(dto, email) {
-    const updatedUser = await this.userModel
+    const updatedUser = await UserModel
       .findOneAndUpdate(
         { "privates.email": email },
         [
@@ -231,7 +234,7 @@ export class UserService {
   }
 
   async updateDelivery(dto, email) {
-    const updatedUser = await this.userModel
+    const updatedUser = await UserModel
       .findOneAndUpdate(
         { "privates.email": email },
         [
@@ -252,7 +255,7 @@ export class UserService {
       operator = "subtract";
     }
 
-    await this.userModel.updateOne(
+    await UserModel.updateOne(
       { "privates.email": email },
       [
         {
@@ -343,7 +346,7 @@ export class UserService {
       ],
       { new: true, useFindAndModify: false },
     );
-    const result = await this.userModel
+    const result = await UserModel
       .aggregate([
         {
           $match: { "privates.email": email },
@@ -397,7 +400,7 @@ export class UserService {
   }
 
   async deleteGood(email, id, field) {
-    await this.userModel
+    await UserModel
       .updateOne(
         { "privates.email": email },
         { $pull: { [field]: { goodId: id } } },
@@ -418,12 +421,12 @@ export class UserService {
       registered: false
     }
     await this.registerUser(dto, false)
-    const access_token = await this.jwtService.signAsync({email: fakeEmail})
+    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET, {expiresIn: "24"})
     return this.updateGoodTocart(fakeEmail, id, "add", access_token)
 
   }
   async toggleSelect(email, goodId) {
-    const updated = await this.userModel
+    const updated = await UserModel
       .findOneAndUpdate(
         { "privates.email": email },
         [
@@ -474,7 +477,7 @@ export class UserService {
     return updated.cart.find((good) => good.goodId === goodId);
   }
   async selectAll(email, on) {
-    const updated = await this.userModel
+    const updated = await UserModel
       .findOneAndUpdate(
         { "privates.email": email },
         [
@@ -498,7 +501,7 @@ export class UserService {
     return updated.cart;
   }
   async toggleFavorites(goodId, email) {
-    if(email) {
+    if (email) {
       return this.toggleFavoritesByEmail(goodId, email)
     }
     const fakeEmail = `${Math.random().toString(36).substring(2, 15)}@mail.com`
@@ -509,12 +512,13 @@ export class UserService {
       registered: false
     }
     await this.registerUser(dto, false)
-    const access_token = await this.jwtService.signAsync({email: fakeEmail})
+    await this.registerUser(dto, false)
+    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET, {expiresIn: "24"})
     return this.toggleFavoritesByEmail(goodId, fakeEmail, access_token)
-    
+
   }
   async toggleFavoritesByEmail(goodId, email, token) {
-    const updateResult = (await this.userModel
+    const updateResult = (await UserModel
       .findOneAndUpdate(
         { "privates.email": email },
         [
@@ -544,7 +548,7 @@ export class UserService {
     // const existing = updateResult["isExisting"];
     let result;
     if (updateResult.favorites.includes(goodId)) {
-      result = await this.userModel
+      result = await UserModel
         .aggregate([
           {
             $match: { "privates.email": email },
@@ -604,15 +608,15 @@ export class UserService {
           },
         ])
         .exec();
-      result = result[0]?.updated; 
+      result = result[0]?.updated;
       if (token) {
-        return {result, token}
+        return { result, token }
       }
     }
     return result || {};
   }
   async addOrder(email, ids) {
-    const updated = await this.userModel.findOneAndUpdate(
+    const updated = await UserModel.findOneAndUpdate(
       { "privates.email": email },
       {
         $pull: {
@@ -631,7 +635,7 @@ export class UserService {
     return this.updateGoodTocart(email, id, "sub");
   }
   async deleteSelected(email) {
-    const cart = await this.userModel.findOneAndUpdate(
+    const cart = await UserModel.findOneAndUpdate(
       { "privates.email": email },
       [
         {
