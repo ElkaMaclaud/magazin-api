@@ -10,7 +10,7 @@ export default function (req, res, next) {
     try {
         if (req.headers.authorization) {
             const token = req.headers.authorization.split(" ")[1];
-            if (token) {
+            if (token && token !== "null") {
                 const decodedData = jwt.verify(token, process.env.JWT_SECRET);
                 req.user = decodedData;
                 req.userEmail = decodedData.email;
