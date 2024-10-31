@@ -61,7 +61,7 @@ export class UserService {
   async login(email) {
     const payload = { email };
     return {
-      access_token: jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "24h"}),
+      access_token: jwt.sign(payload, process.env.JWT_SECRET),
     };
   }
 
@@ -422,7 +422,7 @@ export class UserService {
     }
     await this.registerUser(dto, false)
     const payload = {email: fakeEmail}
-    const access_token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "24h"})
+    const access_token = jwt.sign(payload, process.env.JWT_SECRET)
     return this.updateGoodTocart(fakeEmail, id, "add", access_token)
 
   }
@@ -514,7 +514,7 @@ export class UserService {
     }
     await this.registerUser(dto, false)
     await this.registerUser(dto, false)
-    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET, {expiresIn: "24h"})
+    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET)
     return this.toggleFavoritesByEmail(goodId, fakeEmail, access_token)
 
   }
