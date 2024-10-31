@@ -2,8 +2,8 @@ import express from "express"
 import cors from "cors"
 import mongoose from "mongoose"
 import dotenv from "dotenv"
-import goodRouter from "./src/routers/goodRoutes.js"
-import userRouter from "./src/routers/userRoutes.js"
+import goodRouter from "./routers/goodRoutes.js"
+import userRouter from "./routers/userRoutes.js"
 
 dotenv.config()
 const PORT = process.env.PORT || 3000
