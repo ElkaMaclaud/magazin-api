@@ -421,7 +421,8 @@ export class UserService {
       registered: false
     }
     await this.registerUser(dto, false)
-    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET, {expiresIn: "24"})
+    const payload = {email: fakeEmail}
+    const access_token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "24h"})
     return this.updateGoodTocart(fakeEmail, id, "add", access_token)
 
   }
@@ -513,7 +514,7 @@ export class UserService {
     }
     await this.registerUser(dto, false)
     await this.registerUser(dto, false)
-    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET, {expiresIn: "24"})
+    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET, {expiresIn: "24h"})
     return this.toggleFavoritesByEmail(goodId, fakeEmail, access_token)
 
   }

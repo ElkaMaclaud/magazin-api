@@ -18,7 +18,7 @@ export class UserController {
   async login(req, res) {
     const { email: login, password } = req.body;
     try {
-      const { email } = await this.userService.validateUser(login, password);
+      const { email } = await this.userService.validateUser(res, login, password);
       return res.json(await this.userService.login(email));
     } catch (err) {
       return res.status(err.status).json({
