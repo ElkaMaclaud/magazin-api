@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose"
 
 const GoodModel = new Schema({
+    salesmanId: {type: String, required: true},
     image: {type: [String], required: true},
     price: {type: Number, required: true},
     oldPrice: {type: Number, required: false},

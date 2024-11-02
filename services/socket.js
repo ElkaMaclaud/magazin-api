@@ -8,7 +8,7 @@ dotenv.config();
 export const createSocketServer = (httpServer) => {
     const io = new Server(httpServer, {
         cors: {
-            origin: "https://magazin-ruby.vercel.app", //"http://localhost:3001"
+            origin: "http://localhost:3001", //https://magazin-ruby.vercel.app
             methods: ["GET", "POST"],
             credentials: true 
         }
@@ -32,8 +32,11 @@ export const createSocketServer = (httpServer) => {
 
     io.on("connection", async (socket) => {
         console.log("Пользователь подключился:", socket.id);
+
+        const { chatId } = socket.handshake.query; 
+
         try {
-            const messages = await Message.find({ senderId: socket.userId });
+            const messages = await Message.find({ chatId });
             socket.emit("previous messages", messages);
         } catch (error) {
             console.error("Ошибка при получении сообщений:", error);
@@ -46,13 +49,14 @@ export const createSocketServer = (httpServer) => {
 
             const message = new Message({
                 content: msg,
-                senderId: userId
+                senderId: userId,
+                chatId 
             });
 
             try {
                 await message.save();
                 console.log("Сообщение сохранено в базе данных");
-                io.emit("chat message", msg);
+                io.to(chatId).emit("chat message", msg); 
             } catch (error) {
                 console.error("Ошибка при сохранении сообщения:", error);
             }

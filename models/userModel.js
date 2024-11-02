@@ -40,7 +40,8 @@ const UserModel = new Schema({
     favorites: { type: [String], default: [] },
     cart: { type: [IUserGoodSchema], default: [] },
     order: { type: [String], default: [] },
-    delivery: { type: IDeliverySchema, required: true }
+    delivery: { type: IDeliverySchema, required: true },
+    chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }]
 }, { timestamps: true });
 
 

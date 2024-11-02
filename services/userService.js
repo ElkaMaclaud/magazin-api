@@ -1,6 +1,7 @@
-import bcrypt  from "bcryptjs";
+import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import UserModel from "../models/userModel.js"
+import ChatModel from "../models/chatModel.js"
 import dotenv from "dotenv"
 import { UnauthorizedException } from "../errors/UnauthorizedException.js"
 import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "../constants.js";
@@ -8,12 +9,25 @@ import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "../constants.js";
 dotenv.config()
 export class UserService {
   async registerUser(dto, registered) {
+    const chat = await ChatModel.create({
+      participants: ["672661ab9648816708d509ca"],
+      title: 'Поддержка',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
     const salt = await bcrypt.genSalt(10);
+    const today = new Date();
+    const birth = new Date(dto.dateofBirth ? dto.dateofBirth : "01.01.1970");
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDifference = today.getMonth() - birth.getMonth();
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
     const newUser = await UserModel.create({
       publik: {
         name: dto.name,
         city: "",
-        age: 20,
+        age: age,
       },
       privates: {
         phone: dto?.phone || "",
@@ -32,6 +46,7 @@ export class UserService {
       },
       typegooseName: "",
       registered: registered === false ? false : true,
+      chats: [chat._id]
     });
     return newUser.save();
   }
@@ -205,9 +220,14 @@ export class UserService {
 
   async getUserData(email) {
     return UserModel
-      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1 })
+      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1, chat: 1 })
       .exec();
   }
+
+  async getUserChats(id) {
+    const user = await this.findById(id).populate('chats');
+    return user.chats;
+  };
 
   async updateUserData(dto, email) {
     const updatedUser = await UserModel
@@ -422,7 +442,7 @@ export class UserService {
       registered: false
     }
     await this.registerUser(dto, false)
-    const payload = {email: fakeEmail}
+    const payload = { email: fakeEmail }
     const access_token = jwt.sign(payload, process.env.JWT_SECRET)
     return this.updateGoodTocart(fakeEmail, id, "add", access_token)
 
@@ -515,7 +535,7 @@ export class UserService {
     }
     await this.registerUser(dto, false)
     await this.registerUser(dto, false)
-    const access_token = jwt.sign({email: fakeEmail}, process.env.JWT_SECRET)
+    const access_token = jwt.sign({ email: fakeEmail }, process.env.JWT_SECRET)
     return this.toggleFavoritesByEmail(goodId, fakeEmail, access_token)
 
   }
