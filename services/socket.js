@@ -31,7 +31,10 @@ export const createSocketServer = (httpServer) => {
     });
 
     io.on("connection", async (socket) => {
-        console.log("Пользователь подключился:", socket.id);
+        socket.on("join room", (chatId) => {
+            socket.join(chatId);
+            console.log(`Клиент присоединился к комнате: ${chatId} по ${socket.id}`);
+        });
 
         const { chatId } = socket.handshake.query; 
 
@@ -57,6 +60,7 @@ export const createSocketServer = (httpServer) => {
                 await message.save();
                 console.log("Сообщение сохранено в базе данных");
                 io.to(chatId).emit("chat message", msg); 
+                console.log("Сообщение отправлено", chatId);
             } catch (error) {
                 console.error("Ошибка при сохранении сообщения:", error);
             }
