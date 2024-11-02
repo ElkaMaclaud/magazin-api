@@ -21,9 +21,10 @@ export class UserController {
       const { email, _id } = await this.userService.validateUser(res, login, password);
       return res.json(await this.userService.login(email, _id));
     } catch (err) {
-      return res.status(err.status).json({
-        message: err.message,
-      });
+      const statusCode = err.status || 401; 
+        return res.status(statusCode).json({
+            message: err.message,
+        });
     }
   }
 
