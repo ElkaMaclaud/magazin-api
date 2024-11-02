@@ -220,7 +220,7 @@ export class UserService {
 
   async getUserData(email) {
     return UserModel
-      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1, chat: 1 })
+      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1, chats: 1 })
       .exec();
   }
 
