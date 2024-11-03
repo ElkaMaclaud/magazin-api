@@ -8,8 +8,9 @@ dotenv.config();
 export const createSocketServer = (httpServer) => {
     const io = new Server(httpServer, {
         cors: {
-            origin: "*", // "https://magazin-ruby.vercel.app" "http://localhost:3001"
+            origin:[ "http://localhost:3001", "https://magazin-ruby.vercel.app"], //"*", //  "http://localhost:3001"
             methods: ["GET", "POST"],
+            allowedHeaders: ["Authorization", "Content-Type"],
             credentials: true 
         }
     });
