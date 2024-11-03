@@ -254,6 +254,22 @@ export class UserService {
     };
   }
 
+  async createNewChat(dto) {
+    const { userId, id } = dto
+    const chat = await ChatModel.create({
+      participants: [userId],
+      title: 'Поддержка',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    const user = await UserModel.findOneAndUpdate(
+      { _id: userId },
+      { $push: { chats: { $each: [chat._id], $position: 0 } } },
+      { new: true }
+    );
+    return { chatid: chat._id, user }
+  }
+
   async updateDelivery(dto, email) {
     const updatedUser = await UserModel
       .findOneAndUpdate(

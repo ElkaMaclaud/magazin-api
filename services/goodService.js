@@ -1,4 +1,5 @@
 import GoodModel from "../models/goodModel.js"
+import SellerModel from "../models/sellerModel.js"
 
 // Сервис для получения товаров из монгод
 
@@ -24,6 +25,19 @@ export class GoodService {
     return matchCondition;
   }
 
+  async createSelers(dto) {
+    const validateSellersData = (data) => {
+      return data.every(seller => seller.name && seller.email);
+    };
+
+    if (!validateSellersData(dto)) {
+      console.error("Некоторые записи не содержат обязательные поля!");
+    } else {
+      await SellerModel.insertMany(dto)
+        .then(() => console.log("Данные успешно сохранены"))
+        .catch(err => console.error("Ошибка при сохранении данных:", err));
+    }
+  }
   async getGoodsByDiscountСlassificationUser(
     email,
     value,

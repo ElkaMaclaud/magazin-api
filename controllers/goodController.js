@@ -66,4 +66,10 @@ export class GoodController {
         const goods = await this.goodModel.getGoodsByIds(dto, options);
         return res.json(goods);
     }
+
+    async createSelers(req, res) {
+        const dto = req.body
+         await this.goodModel.createSelers(dto)
+         return res.json({success: true, message: "Успешно!"})
+    }
 }

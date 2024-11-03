@@ -74,8 +74,9 @@ export class UserController {
   }
 
   async createNewChat(req, res) {
-    // const dto = req.body;
-    // const 
+    const dto = req.body;
+    const result = await this.userService.createNewChat(dto)
+    return res.json(result)
   }
 
   async updateDelivery(req, res) {
