@@ -5,6 +5,7 @@ import userEmail from '../middlewares/emailMiddleware.js';
 const router = express.Router();
 const goodController = new GoodController();
 
+router.get('/getAllGoods', (req, res) => goodController.getAllGoods(req, res));
 router.get('/goodsbySale', userEmail, (req, res) => goodController.goodsbySale(req, res));
 router.get('/goodsbyDiscount', userEmail, (req, res) => goodController.goodsbyDiscount(req, res));
 router.get('/:id', userEmail, (req, res) => goodController.getGoodById(req, res));

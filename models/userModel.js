@@ -4,7 +4,6 @@ import { Schema, model } from "mongoose"
 const IUserGoodSchema = new Schema({
     goodId: { type: String, required: true },
     count: { type: Number, required: true },
-    favorite: { type: Boolean, default: false },
     choice: { type: Boolean, default: false }
 });
 

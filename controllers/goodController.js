@@ -36,11 +36,10 @@ export class GoodController {
     async getGoodById(req, res) {
         const id = req.params.id;
         const email = req.userEmail;
-
-        if (!email) {
-            const good = await this.goodModel.getGoodById(id);
-            return res.json(good);
-        }
+        // if (!email) {
+        //     const good = await this.goodModel.getGoodById(id);
+        //     return res.json(good);
+        // }
         const good = await this.goodModel.getGoodByIdForUser(id, email);
         return res.json(good);
     }
@@ -71,5 +70,9 @@ export class GoodController {
         const dto = req.body
          await this.goodModel.createSelers(dto)
          return res.json({success: true, message: "Успешно!"})
+    }
+
+    async getAllGoods(req, res) {
+        return res.json(await this.goodModel.getAllGoods())
     }
 }

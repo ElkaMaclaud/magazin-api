@@ -9,12 +9,14 @@ import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "../constants.js";
 dotenv.config()
 export class UserService {
   async registerUser(dto, registered) {
-    const chat = await ChatModel.create({
+    if(registered !== false) {
+      const chat = await ChatModel.create({
       participants: ["672661ab9648816708d509ca"],
       title: 'Поддержка',
       createdAt: new Date(),
       updatedAt: new Date()
     });
+    }
     const salt = await bcrypt.genSalt(10);
     const today = new Date();
     const birth = new Date(dto.dateofBirth ? dto.dateofBirth : "01.01.1970");
@@ -46,7 +48,7 @@ export class UserService {
       },
       typegooseName: "",
       registered: registered === false ? false : true,
-      chats: [chat._id]
+      chats: registered !== false ? [chat._id] : []
     });
     return newUser.save();
   }

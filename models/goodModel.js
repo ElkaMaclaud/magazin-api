@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose"
 
 const GoodModel = new Schema({
-    salesmanId: {type: String, required: true},
+    salesmanId: {type: Schema.Types.ObjectId, ref: "Seller", required: true},
     image: {type: [String], required: true},
     price: {type: Number, required: true},
     oldPrice: {type: Number, required: false},
@@ -30,7 +30,7 @@ const GoodModel = new Schema({
         }
     },
     sale: {type: Boolean, required: false},
-    discount: {type: Number, required: false}
+    discount: {type: Boolean, required: false}
 })
 
 export default model("Good", GoodModel, "Good")

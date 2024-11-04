@@ -1,7 +1,9 @@
 import GoodModel from "../models/goodModel.js"
 import SellerModel from "../models/sellerModel.js"
+// import fs from "fs"
+// import path from "path"
 
-// Сервис для получения товаров из монгод
+// Сервис для получения товаров из монго
 
 // import * as path from "path";
 // import * as fs from "fs";
@@ -76,6 +78,11 @@ export class GoodService {
         },
         {
           $addFields: {
+            user: { $ifNull: ["$user", null] } 
+          }
+        },
+        {
+          $addFields: {
             count: {
               $let: {
                 vars: {
@@ -83,7 +90,7 @@ export class GoodService {
                     $arrayElemAt: [
                       {
                         $filter: {
-                          input: "$user.cart",
+                          input: { $ifNull: ["$user.cart", []] }, 
                           as: "cartItem",
                           cond: {
                             $eq: [
@@ -111,33 +118,39 @@ export class GoodService {
         {
           $addFields: {
             favorite: {
-              $let: {
-                vars: {
-                  matchedFavorite: {
-                    $arrayElemAt: [
-                      {
-                        $filter: {
-                          input: "$user.favorites",
-                          as: "favoriteItem",
-                          cond: {
-                            $eq: [
-                              "$$favoriteItem",
-                              { $toString: "$$ROOT._id" },
-                            ],
+              $cond: {
+                if: { $ne: ["$user", null] }, 
+                then: {
+                  $let: {
+                    vars: {
+                      matchedFavorite: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: { $ifNull: ["$user.favorites", []] }, 
+                              as: "favoriteItem",
+                              cond: {
+                                $eq: [
+                                  "$$favoriteItem",
+                                  { $toString: "$$ROOT._id" },
+                                ],
+                              },
+                            },
                           },
-                        },
+                          0,
+                        ],
                       },
-                      0,
-                    ],
+                    },
+                    in: {
+                      $cond: {
+                        if: { $gt: [{ $type: "$$matchedFavorite" }, "missing"] },
+                        then: true,
+                        else: "$$REMOVE",
+                      },
+                    },
                   },
                 },
-                in: {
-                  $cond: {
-                    if: { $gt: [{ $type: "$$matchedFavorite" }, "missing"] },
-                    then: true,
-                    else: "$$REMOVE",
-                  },
-                },
+                else: "$$REMOVE", 
               },
             },
           },
@@ -226,106 +239,144 @@ export class GoodService {
     return query.exec();
   }
 
-  async getGoodById(id) {
-    return GoodModel.findById(id).exec();
-  }
-  async getGoodByIdForUser(
-    id,
-    email,
-  ) {
-    const result = await GoodModel
-      .aggregate([
-        {
-          $match: { $expr: { $eq: [{ $toString: "$_id" }, id] } },
-        },
-        {
-          $lookup: {
-            from: "User",
-            let: { userEmail: email, goodId: id },
-            pipeline: [
-              {
-                $match: {
-                  $expr: { $eq: ["$privates.email", "$$userEmail"] },
-                },
+  // async getGoodById(id) {
+  //   return GoodModel.findById(id).exec();
+  // }
+
+  async getGoodByIdForUser(id, email = " ") {
+    const result = await GoodModel.aggregate([
+      {
+        $match: { $expr: { $eq: [{ $toString: "$_id" }, id] } },
+      },
+      {
+        $lookup: {
+          from: "sellers",
+          let: { salesmanId: "$salesmanId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$$salesmanId", "$_id"] },
               },
-              {
-                $addFields: {
-                  cart_item: {
-                    $filter: {
-                      input: "$cart",
-                      as: "item",
-                      cond: { $eq: ["$$item.goodId", "$$goodId"] },
-                    },
+            }
+          ],
+          as: "seller",
+        },
+      },
+      {
+        $unwind: {
+          path: "$seller",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          seller: "$seller"
+        }
+      },
+      {
+        $lookup: {
+          from: "User",
+          let: { userEmail: email, goodId: id },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$privates.email", "$$userEmail"] },
+              },
+            },
+            {
+              $addFields: {
+                cart_item: {
+                  $filter: {
+                    input: "$cart",
+                    as: "item",
+                    cond: { $eq: ["$$item.goodId", "$$goodId"] },
                   },
                 },
-              },
-              {
-                $project: {
-                  count: { $arrayElemAt: ["$cart_item.count", 0] },
-                },
-              },
-            ],
-            as: "user",
-          },
-        },
-        {
-          $addFields: {
-            count: {
-              $cond: {
-                if: { $gt: [{ $size: "$user" }, 0] },
-                then: { $arrayElemAt: ["$user.count", 0] },
-                else: 0,
+                favorites: { $ifNull: ["$favorites", []] },
               },
             },
-            favorite: {
-              $cond: {
-                if: {
-                  $in: [
-                    id,
-                    [
+            {
+              $project: {
+                count: { $arrayElemAt: ["$cart_item.count", 0] },
+                favorites: 1,
+              },
+            },
+          ],
+          as: "user",
+        },
+      },
+      {
+        $addFields: {
+          user: { $ifNull: [{ $arrayElemAt: ["$user", 0] }, null] }
+        }
+      },
+      {
+        $addFields: {
+          count: {
+            $ifNull: ["$user.count", "$$REMOVE"],
+          },
+          favorite: {
+            $cond: {
+              if: {
+                $and: [
+                  { $isArray: "$user.favorites" },
+                  {
+                    $gt: [
                       {
-                        $arrayElemAt: ["$user.favorites", 0],
+                        $size: {
+                          $filter: {
+                            input: {
+                              $cond: {
+                                if: { $isArray: "$user.favorites" },
+                                then: "$user.favorites",
+                                else: []
+                              }
+                            },
+                            as: "fav",
+                            cond: { $eq: ["$$fav", id] },
+                          },
+                        },
                       },
+                      0,
                     ],
-                  ],
-                },
-                then: true,
-                else: false,
+                  },
+                ],
               },
+              then: true,
+              else: "$$REMOVE",
             },
           },
         },
-        {
-          $lookup: {
-            from: "Review",
-            let: { goodId: { $toString: "$_id" } },
-            pipeline: [
-              {
-                $match: {
-                  $expr: { $eq: ["$$goodId", "$goodId"] },
-                },
+      },
+      {
+        $lookup: {
+          from: "Review",
+          let: { goodId: { $toString: "$_id" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$$goodId", "$goodId"] },
               },
-            ],
-            as: "reviews",
-          },
+            },
+          ],
+          as: "reviews",
         },
-        {
-          $addFields: {
-            reviewCount: { $size: "$reviews" },
-            reviewAvg: { $avg: "$reviews.rating" },
-          },
+      },
+      {
+        $addFields: {
+          reviewCount: { $size: "$reviews" },
+          reviewAvg: { $avg: "$reviews.rating" },
         },
-        {
-          $project: {
-            user: 0,
-          },
+      },
+      {
+        $project: {
+          user: 0,
         },
-      ])
-      .exec();
+      },
+    ]).exec();
 
     return result[0];
   }
-
   // Второй вариант агрегации!!!
   // Более интуитивный!
 
@@ -434,10 +485,15 @@ export class GoodService {
   // Функцию для создания и внесения товаров в бд нужно будет реализовать для продавцов в будущем возможно..., но такой цели пока нет
   // Собственно нет и фронта для продавцов, так что Функцию для создания товаров будет излишней пока...
 
-  // async writeDataToBD() {
-  //   const filePath = path.join(process.cwd(), "./src/database", "data.json");
-  //   const rawdata = fs.readFileSync(filePath, "utf8");
-  //   const data: { good: GoodDto[] } = JSON.parse(rawdata);
-  //   await GoodModel.insertMany(data.good);
-  // }
+  async writeDataToBD() {
+    const filePath = path.join(process.cwd(), "/", "good.json");
+    const rawdata = fs.readFileSync(filePath, "utf8");
+    const data = JSON.parse(rawdata);
+    await GoodModel.insertMany(data.good);
+    console.log("Данные успешно сохранены!")
+  }
+
+  async getAllGoods() {
+    return await GoodModel.find()
+  }
 }

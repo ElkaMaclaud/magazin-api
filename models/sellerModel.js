@@ -15,7 +15,9 @@ const SellerSchema = new Schema({
     updatedAt: { type: Date, default: Date.now },
     products: [{ type: Schema.Types.ObjectId, ref: 'Good' }],
     status: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
-    socialMediaLinks: { type: Map, of: String }
+    socialMediaLinks: { type: Map, of: String },
+    image: { type: String },
+    chats: [{ type: Schema.Types.ObjectId, ref: 'Chat' }]
 });
 
 export default model('Seller', SellerSchema);
