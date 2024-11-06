@@ -21,123 +21,192 @@ export class UserController {
       const { email, _id } = await this.userService.validateUser(res, login, password);
       return res.json(await this.userService.login(email, _id));
     } catch (err) {
-      const statusCode = err.status || 401; 
-        return res.status(statusCode).json({
-            message: err.message,
-        });
+      const statusCode = err.status || 401;
+      return res.status(statusCode).json({
+        message: err.message,
+      });
     }
   }
 
 
   async getCart(req, res) {
+    try {
     const email = req.userEmail;
     const { offset, limit } = req.query;
     const options = { offset, limit };
     return res.json(await this.userService.getCart(email, options));
+  } catch(error) {
+    return res.status(403).json({ success: false, message: error })
   }
+}
 
   async getFavorites(req, res) {
+  try {
     const email = req.userEmail;
     const { offset, limit } = req.query;
     const options = { offset, limit };
     return res.json(await this.userService.getFavorites(email, options));
+  } catch (error) {
+    return res.status(403).json({ success: false, message: error })
   }
+}
 
   async getOrders(req, res) {
+  try {
     const email = req.userEmail;
     const { offset, limit } = req.query;
     const options = { offset, limit };
     return res.json(await this.userService.getOrders(email, options));
+  } catch (error) {
+    return res.status(403).json({ success: false, message: error })
   }
+}
 
   async selectAll(req, res) {
+  try {
     const email = req.userEmail;
     const dto = req.body;
     return res.json(await this.userService.selectAll(email, dto.on));
+  } catch (error) {
+    return res.status(403).json({ success: false, message: error })
   }
+}
 
   async getUserData(req, res) {
+  try {
     const email = req.userEmail;
     return res.json(await this.userService.getUserData(email));
+  } catch (error) {
+    return res.status(403).json({ success: false, message: error })
   }
+}
 
   async updateUserData(req, res) {
+  try {
     const email = req.userEmail;
     const dto = req.body;
     const result = await this.userService.updateUserData(dto, email);
     return res.json(result);
+  } catch (error) {
+    return res.status(403).json({ success: false, message: error })
   }
+}
 
   async createNewChat(req, res) {
-    const dto = req.body;
-    const result = await this.userService.createNewChat(dto)
-    return res.json(result)
+    try {
+      const dto = req.body;
+      const result = await this.userService.createNewChat(dto)
+      return res.json(result)
+    } catch (error) {
+      return res.status(403).json({ success: false, message: error })
+    }
   }
 
   async updateDelivery(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    const result = await this.userService.updateDelivery(dto, email);
-    return res.json(result);
+    try {
+      const email = req.userEmail;
+      const dto = req.body;
+      const result = await this.userService.updateDelivery(dto, email);
+      return res.json(result);
+    } catch (error) {
+      return res.status(403).json({ success: false, message: error })
+    }
   }
 
-  async deleteSelected(req, res) {
-    const email = req.userEmail;
-    const result = await this.userService.deleteSelected(email);
-    return res.json(result);
-  }
+  async deleteSelected(req, res) {    
+      try {
+        const email = req.userEmail;
+        const result = await this.userService.deleteSelected(email);
+        return res.json(result);
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async addToCart(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    const id = dto.id;
-    return res.json(await this.userService.addToCart(id, email));
-  }
+      try {
+        const email = req.userEmail;
+        const dto = req.body;
+        const id = dto.id;
+        return res.json(await this.userService.addToCart(id, email));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async addToCartGetAuto(req, res) {
-    const dto = req.body;
-    const id = dto.id;
-    return res.json(await this.userService.addToCart(id));
-  }
+      try {
+        const dto = req.body;
+        const id = dto.id;
+        return res.json(await this.userService.addToCart(id));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async toggleSelect(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    const id = dto.id;
-    return res.json(await this.userService.toggleSelect(email, id));
-  }
+      try {
+        const email = req.userEmail;
+        const dto = req.body;
+        const id = dto.id;
+        return res.json(await this.userService.toggleSelect(email, id));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async addFavorites(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    const id = dto.id;
-    return res.json(await this.userService.toggleFavorites(id, email));
-  }
+      try {
+        const email = req.userEmail;
+        const dto = req.body;
+        const id = dto.id;
+        return res.json(await this.userService.toggleFavorites(id, email));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async toggleFavoritesGetAuto(req, res) {
-    const dto = req.body;
-    const id = dto.id;
-    return res.json(await this.userService.toggleFavorites(id));
-  }
+      try {
+        const dto = req.body;
+        const id = dto.id;
+        return res.json(await this.userService.toggleFavorites(id));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async addOrder(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    return res.json(await this.userService.addOrder(email, dto.ids));
-  }
+      try {
+        const email = req.userEmail;
+        const dto = req.body;
+        return res.json(await this.userService.addOrder(email, dto.ids));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async subFromCart(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    const id = dto.id;
-    return res.json(await this.userService.subFromCart(email, id));
-  }
+      try {
+        const email = req.userEmail;
+        const dto = req.body;
+        const id = dto.id;
+        return res.json(await this.userService.subFromCart(email, id));
+      } catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
 
   async removeFromCart(req, res) {
-    const email = req.userEmail;
-    const dto = req.body;
-    const id = dto.id;
-    const result = await this.userService.removeFromCart(email, id);
-    return res.json(result);
+      try {
+        const email = req.userEmail;
+        const dto = req.body;
+        const id = dto.id;
+        const result = await this.userService.removeFromCart(email, id);
+        return res.json(result);
+      }
+      catch (error) {
+        return res.status(403).json({ success: false, message: error })
+      }
+    }
   }
-}
