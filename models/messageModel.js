@@ -7,4 +7,4 @@ const MessageSchema = new Schema({
     timestamp: { type: Date, default: Date.now }
 });
 
-export default model('Message', MessageSchema);
+export default model('Message', MessageSchema, 'Message');

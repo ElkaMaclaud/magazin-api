@@ -252,12 +252,25 @@ export class UserService {
       createdAt: new Date(),
       updatedAt: new Date()
     });
-    const user = await UserModel.findOneAndUpdate(
-      { _id: userId },
-      { $push: { chats: { $each: [chat._id], $position: 0 } } },
-      { new: true }
-    );
-    return { chatid: chat._id }
+    const updateQuery = {
+      $push: { chats: { $each: [chat._id], $position: 0 } }
+    };
+    let user;
+    if (id === "672661ab9648816708d509ca") {
+      await UserModel.updateMany(
+        { _id: { $in: [userId, id] } },
+        updateQuery,
+        { new: true }
+      )
+      user = await UserModel.findById(userId).populate('chats').exec();
+    } else {
+      user = await UserModel.findOneAndUpdate(
+        { _id: userId },
+        updateQuery,
+        { new: true }
+      ).populate('chats').exec()
+    }
+    return { chats: user.chats }
   }
 
   async updateDelivery(dto, email) {

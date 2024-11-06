@@ -12,4 +12,4 @@ ChatSchema.pre('save', function(next) {
     next();
 });
 
-export default model('Chat', ChatSchema);
+export default model('Chat', ChatSchema, 'Chat');
