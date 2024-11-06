@@ -61,11 +61,6 @@ export class UserController {
     return res.json(await this.userService.getUserData(email));
   }
 
-  async getUserChats(req, res) {
-    const id = req.params.id
-    return res.json(await this.userService.getUserChats(id)); 
-  };
-
   async updateUserData(req, res) {
     const email = req.userEmail;
     const dto = req.body;

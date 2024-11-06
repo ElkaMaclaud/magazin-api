@@ -9,14 +9,6 @@ import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "../constants.js";
 dotenv.config()
 export class UserService {
   async registerUser(dto, registered) {
-    if(registered !== false) {
-      const chat = await ChatModel.create({
-      participants: ["672661ab9648816708d509ca"],
-      title: 'Поддержка',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    }
     const salt = await bcrypt.genSalt(10);
     const today = new Date();
     const birth = new Date(dto.dateofBirth ? dto.dateofBirth : "01.01.1970");
@@ -48,7 +40,6 @@ export class UserService {
       },
       typegooseName: "",
       registered: registered === false ? false : true,
-      chats: registered !== false ? [chat._id] : []
     });
     return newUser.save();
   }
@@ -222,14 +213,11 @@ export class UserService {
 
   async getUserData(email) {
     return UserModel
-      .findOne({ "privates.email": email }, { publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1, chats: 1 })
+      .findOne({ "privates.email": email })
+      .populate('chats')
+      .select({ publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1, chats: 1 })
       .exec();
   }
-
-  async getUserChats(id) {
-    const user = await this.findById(id).populate('chats');
-    return user.chats;
-  };
 
   async updateUserData(dto, email) {
     const updatedUser = await UserModel
@@ -257,10 +245,10 @@ export class UserService {
   }
 
   async createNewChat(dto) {
-    const { userId, id } = dto
+    const { userId, id, title } = dto
     const chat = await ChatModel.create({
-      participants: [userId],
-      title: 'Поддержка',
+      participants: [userId, id],
+      title,
       createdAt: new Date(),
       updatedAt: new Date()
     });
@@ -269,7 +257,7 @@ export class UserService {
       { $push: { chats: { $each: [chat._id], $position: 0 } } },
       { new: true }
     );
-    return { chatid: chat._id, user }
+    return { chatid: chat._id }
   }
 
   async updateDelivery(dto, email) {
