@@ -245,10 +245,9 @@ export class UserService {
   }
 
   async createNewChat(dto) {
-    const { userId, id, title } = dto
+    const { userId, id, userTitle, titleId } = dto
     const chat = await ChatModel.create({
-      participants: [userId, id],
-      title,
+      participants: [{userId: userTitle, id: titleId}],
       createdAt: new Date(),
       updatedAt: new Date()
     });
