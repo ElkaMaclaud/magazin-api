@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+export const activeSockets = {}
+
 export const createSocketServer = (httpServer) => {
     const io = new Server(httpServer, {
         cors: {
@@ -24,6 +26,7 @@ export const createSocketServer = (httpServer) => {
                     return next(new Error('Unauthorized')); 
                 }
                 socket.userId = decoded.id; 
+                activeSockets[socket.userId] = socket;
                 next(); 
             });
         } else {
@@ -60,7 +63,12 @@ export const createSocketServer = (httpServer) => {
             try {
                 await message.save();
                 console.log("Сообщение сохранено в базе данных");
-                io.to(chatId).emit("chat message", msg); 
+                const messageObject = {
+                    content: msg,
+                    senderId: userId,
+                    chatId
+                };
+                io.to(chatId).emit("chat message", messageObject); 
                 console.log("Сообщение отправлено", chatId);
             } catch (error) {
                 console.error("Ошибка при сохранении сообщения:", error);
@@ -69,6 +77,7 @@ export const createSocketServer = (httpServer) => {
 
         socket.on("disconnect", () => {
             console.log("Пользователь отключился:", socket.id);
+            delete activeSockets[socket.userId]
         });
     });
 };

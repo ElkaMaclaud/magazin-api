@@ -5,6 +5,7 @@ import ChatModel from "../models/chatModel.js"
 import dotenv from "dotenv"
 import { UnauthorizedException } from "../errors/UnauthorizedException.js"
 import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD_ERROR } from "../constants.js";
+import { activeSockets } from "./socket.js";
 
 dotenv.config()
 export class UserService {
@@ -219,6 +220,14 @@ export class UserService {
       .exec();
   }
 
+  async getAllChats(email) {
+    return UserModel
+      .findOne({ "privates.email": email })
+      .select('chats')
+      .populate('chats')
+      .exec();
+  }
+
   async updateUserData(dto, email) {
     const updatedUser = await UserModel
       .findOneAndUpdate(
@@ -247,7 +256,7 @@ export class UserService {
   async createNewChat(dto) {
     const { userId, id, userTitle, titleId } = dto
     const chat = await ChatModel.create({
-      participants: [{userId, title: userTitle}, { userId: id, title: titleId}],
+      participants: [{ userId, title: userTitle }, { userId: id, title: titleId }],
       createdAt: new Date(),
       updatedAt: new Date()
     });
@@ -268,6 +277,10 @@ export class UserService {
         updateQuery,
         { new: true }
       ).populate('chats').exec()
+    }
+    const socket = activeSockets[id];
+    if (socket) {
+      socket.emit("new chat", chat);
     }
     return { chats: user.chats }
   }

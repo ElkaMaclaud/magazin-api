@@ -18,6 +18,7 @@ router.get("/favorites", (req, res) => userController.getFavorites(req, res));
 router.get("/orders", (req, res) => userController.getOrders(req, res));
 router.patch("/selectAll", (req, res) => userController.selectAll(req, res));
 router.get("/userData", (req, res) => userController.getUserData(req, res));
+router.get("/getAllChats", (req, res) => userController.getAllChats(req, res));
 router.post("/createNewChat", (req, res) => userController.createNewChat(req, res));
 router.patch("/updateUserData", (req, res) => userController.updateUserData(req, res));
 router.patch("/changeDelivery", (req, res) => userController.updateDelivery(req, res));
