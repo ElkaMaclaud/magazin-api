@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import Message from '../models/messageModel.js'; 
 import dotenv from "dotenv";
+import { UserService } from "./userService.js";
 
 dotenv.config();
 
@@ -57,7 +58,8 @@ export const createSocketServer = (httpServer) => {
             const message = new Message({
                 content: msg,
                 senderId: userId,
-                chatId 
+                chatId,
+                status: "sent"
             });
 
             try {
@@ -66,10 +68,25 @@ export const createSocketServer = (httpServer) => {
                 const messageObject = {
                     content: msg,
                     senderId: userId,
-                    chatId
+                    chatId,
+                    status: "sent"
                 };
-                io.to(chatId).emit("chat message", messageObject); 
-                console.log("Сообщение отправлено", chatId);
+                
+                const userService = new UserService
+                const participants = await userService.getChatParticipants(chatId); 
+
+                participants.forEach(participantId => {
+                    const updatedMessageObject = {
+                        ...messageObject,
+                        chatId,
+                    };
+                    if (participantId !== userId) {
+                        updatedMessageObject.status = 'delivered';
+                        io.to(chatId).emit("chat message", updatedMessageObject); 
+                    } else {
+                        io.to(chatId).emit("chat message", updatedMessageObject); 
+                    }
+                });
             } catch (error) {
                 console.error("Ошибка при сохранении сообщения:", error);
             }

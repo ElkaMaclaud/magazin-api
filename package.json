@@ -18,5 +18,8 @@
     "mongoose": "^8.7.3",
     "socket.io": "^4.8.1"
   },
-  "type": "module"
+  "type": "module",
+   "engines": {
+    "node": ">=16.0.0"
+  }
 }
