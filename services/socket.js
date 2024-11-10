@@ -99,7 +99,7 @@ export const createSocketServer = (httpServer) => {
                     if (participant !== userId) {
                         updatedMessageObject.status = 'delivered';
                     }
-                    const participantSocketId = activeSockets[participant].id;
+                    const participantSocketId = activeSockets[participant]?.id;
 
                     if (participantSocketId && io.sockets.sockets.get(participantSocketId)) {
                         const participantSocket = io.sockets.sockets.get(participantSocketId);
