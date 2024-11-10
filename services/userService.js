@@ -711,7 +711,6 @@ export class UserService {
     return this.deleteGood(email, id, "cart");
   }
   async getChatParticipants(chatId) {
-    const chat = await ChatModel.findById(chatId).populate('participants');
-    return chat.participants.map(participant => participant.userId.toString());
-  }
+    const chat = await ChatModel.findById(chatId).populate('participants'); 
+    return chat.participants.map(participant => participant.userId.toString()); }
 }
