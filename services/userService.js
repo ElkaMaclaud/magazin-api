@@ -69,9 +69,15 @@ export class UserService {
 
   async login(user) {
     const payload = { email: user.privates.email, id: user._id.toString() };
+    const { _id, registered, publik, privates, delivery } = user;
+
     return {
-      user,
-      access_token: jwt.sign(payload, process.env.JWT_SECRET),
+        _id,
+        registered,
+        publik,
+        privates,
+        delivery,
+        access_token: jwt.sign(payload, process.env.JWT_SECRET),
     };
   }
 
