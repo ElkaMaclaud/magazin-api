@@ -77,7 +77,6 @@ export class UserService {
         publik,
         privates,
         delivery,
-        chats,
         access_token: jwt.sign(payload, process.env.JWT_SECRET),
     };
   }
