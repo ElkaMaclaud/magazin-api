@@ -18,8 +18,8 @@ export class UserController {
   async login(req, res) {
     const { email: login, password } = req.body;
     try {
-      const { email, _id } = await this.userService.validateUser(res, login, password);
-      return res.json(await this.userService.login(email, _id));
+      const user = await this.userService.validateUser(res, login, password);
+      return res.json(await this.userService.login(user));
     } catch (err) {
       const statusCode = err.status || 401;
       return res.status(statusCode).json({

@@ -54,7 +54,6 @@ export class UserService {
     password,
   ) {
     const user = await this.findUser(email);
-    const id = user._id.toString()
     if (!user) {
       throw new UnauthorizedException(res, USER_NOT_FOUND_ERROR);
     }
@@ -65,12 +64,13 @@ export class UserService {
     if (!isCorrectPassword) {
       throw new UnauthorizedException(res, WRONG_PASSWORD_ERROR);
     }
-    return { email: user.privates.email, _id: id };
+    return user;
   }
 
-  async login(email, _id) {
-    const payload = { email, id: _id };
+  async login(user) {
+    const payload = { email: user.privates.email, id: user._id.toString() };
     return {
+      user,
       access_token: jwt.sign(payload, process.env.JWT_SECRET),
     };
   }
