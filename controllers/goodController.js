@@ -72,6 +72,24 @@ export class GoodController {
         }
     }
 
+    async getGoodFindByKeyword(req, res) {
+        try {
+            const email = req.userEmail;
+            const keyWord = req.query.keyWord
+            const offset = req.query.offset ? parseInt(req.query.offset) : undefined;
+            const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
+            const options = { offset, limit };
+            if (!email) {
+                const goods = await this.goodModel.getGoodFindByKeyword(keyWord, options);
+                return res.json(goods);
+            }
+            const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, { keyWord }, options);
+            return res.json(goods);
+        } catch (error) {
+            return res.status(403).json({ success: false, message: error })
+        }
+    }
+
     async goodsbyIds(req, res) {
         try {
             const dto = req.body;

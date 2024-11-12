@@ -8,6 +8,7 @@ const goodController = new GoodController();
 router.get('/getAllGoods', (req, res) => goodController.getAllGoods(req, res));
 router.get('/goodsbySale', userEmail, (req, res) => goodController.goodsbySale(req, res));
 router.get('/goodsbyDiscount', userEmail, (req, res) => goodController.goodsbyDiscount(req, res));
+router.get('/getGoodFindByKeyword', userEmail, (req, res) => goodController.getGoodFindByKeyword(req, res));
 router.get('/:id', userEmail, (req, res) => goodController.getGoodById(req, res));
 router.post('/goodsByCategory', userEmail, (req, res) => goodController.getGoodsByCategory(req, res));
 router.post('/goodsbyIds', (req, res) => goodController.goodsbyIds(req, res));

@@ -27,6 +27,21 @@ export class GoodService {
     return matchCondition;
   }
 
+  buildMatchConditionByKeyword(keyword) {
+    const searchQuery = {
+      $or: [
+        { brand: { $regex: keyword, $options: 'i' } },
+        { name: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } },
+        { category: { $regex: keyword, $options: 'i' } },
+        { characteristics: { $regex: keyword, $options: 'i' } },
+        { 'characteristics.name': { $regex: keyword, $options: 'i' } },
+        { 'characteristics.value': { $regex: keyword, $options: 'i' } }
+      ]
+    };
+    return searchQuery;
+  }
+
   async createSelers(dto) {
     const validateSellersData = (data) => {
       return data.every(seller => seller.name && seller.email);
@@ -45,16 +60,22 @@ export class GoodService {
     value,
     options,
   ) {
-    const offset = options.offset || 0;
-    const limit = options.limit || 50;
+    const offset = options?.offset || 0;
+    const limit = options?.limit || 50;
+    let query;
     const sortField = this.buildMatchCondition(value).sort || { price: 1 };
-    const existsFilter =
-      this.buildMatchCondition(value).category ||
-      this.buildMatchCondition(value);
+    if (typeof value === "object" && value.hasOwnProperty("keyWord")) {
+      query = this.buildMatchConditionByKeyword(value.keyWord)
+    } else {
+      query =
+        this.buildMatchCondition(value).category ||
+        this.buildMatchCondition(value);
+    }
+
     return await GoodModel
       .aggregate([
         {
-          $match: existsFilter,
+          $match: query,
         },
         {
           $lookup: {
@@ -78,7 +99,7 @@ export class GoodService {
         },
         {
           $addFields: {
-            user: { $ifNull: ["$user", null] } 
+            user: { $ifNull: ["$user", null] }
           }
         },
         {
@@ -90,7 +111,7 @@ export class GoodService {
                     $arrayElemAt: [
                       {
                         $filter: {
-                          input: { $ifNull: ["$user.cart", []] }, 
+                          input: { $ifNull: ["$user.cart", []] },
                           as: "cartItem",
                           cond: {
                             $eq: [
@@ -119,7 +140,7 @@ export class GoodService {
           $addFields: {
             favorite: {
               $cond: {
-                if: { $ne: ["$user", null] }, 
+                if: { $ne: ["$user", null] },
                 then: {
                   $let: {
                     vars: {
@@ -127,7 +148,7 @@ export class GoodService {
                         $arrayElemAt: [
                           {
                             $filter: {
-                              input: { $ifNull: ["$user.favorites", []] }, 
+                              input: { $ifNull: ["$user.favorites", []] },
                               as: "favoriteItem",
                               cond: {
                                 $eq: [
@@ -150,7 +171,7 @@ export class GoodService {
                     },
                   },
                 },
-                else: "$$REMOVE", 
+                else: "$$REMOVE",
               },
             },
           },
@@ -190,6 +211,20 @@ export class GoodService {
         { $limit: limit },
       ])
       .exec();
+  }
+
+  async getGoodFindByKeyword(
+    keyWord, options
+  ) {
+    const query = GoodModel.find(this.buildMatchConditionByKeyword(keyWord));
+    if (options.offset) {
+      query.skip(options.offset);
+    }
+    if (options.limit) {
+      query.limit(options.limit);
+    }
+
+    return query.exec();
   }
 
   async getGoodsByCategory(
