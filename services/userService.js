@@ -259,7 +259,10 @@ export class UserService {
   }
 
   async createNewChat(dto) {
-    const { userId, id, userTitle, titleId } = dto
+    const { userId, unprocessedId, unprocessedUserTitle, titleId } = dto
+    const id = unprocessedId.replace(/^\\+|\\+$/g, '').trim()
+    const userTitle = unprocessedUserTitle.replace(/^\\+|\\+$/g, '').trim()
+    
     const chat = await ChatModel.create({
       participants: [{ userId, title: userTitle }, { userId: id, title: titleId }],
       createdAt: new Date(),
