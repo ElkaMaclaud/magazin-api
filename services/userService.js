@@ -222,6 +222,7 @@ export class UserService {
     return UserModel
       .findOne({ "privates.email": email })
       .select({ publik: 1, privates: 1, delivery: 1, registered: 1, _id: 1, chats: 1 })
+      .populate('chats')
       .exec();
   }
 
