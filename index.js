@@ -14,6 +14,14 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
+app.head('/api/resource', (req, res) => {
+    res.set({
+        'Content-Type': 'application/json',
+        'Content-Length': '123',
+        'Last-Modified': new Date().toUTCString(),
+    });
+    res.status(200).end();
+});
 app.use("/api/good", goodRouter)
 app.use("/api/user", userRouter)
 
