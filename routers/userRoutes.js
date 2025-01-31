@@ -1,7 +1,6 @@
 import express from "express";
 import { UserController } from "../controllers/userController.js"; 
 import  auth  from "../middlewares/authMiddleware.js"; 
-import userEmail from '../middlewares/emailMiddleware.js';
 
 const router = express.Router();
 const userController = new UserController();
@@ -11,7 +10,7 @@ router.post("/auth/login", (req, res) => userController.login(req, res));
 router.patch("/addToCartGetAuto", (req, res) => userController.addToCartGetAuto(req, res));
 router.patch("/toggleFavoritesGetAuto", (req, res) => userController.toggleFavoritesGetAuto(req, res));
 
-router.use(userEmail); 
+router.use(auth); 
 
 router.get("/cart", (req, res) => userController.getCart(req, res));
 router.get("/favorites", (req, res) => userController.getFavorites(req, res));
@@ -23,10 +22,6 @@ router.patch("/toggleFavorites", (req, res) => userController.addFavorites(req, 
 router.patch("/selectAll", (req, res) => userController.selectAll(req, res));
 router.patch("/subFromCart", (req, res) => userController.subFromCart(req, res));
 router.patch("/removeFromCart", (req, res) => userController.removeFromCart(req, res));
-
-
-router.use(auth); 
-
 router.get("/userData", (req, res) => userController.getUserData(req, res));
 router.get("/getAllChats", (req, res) => userController.getAllChats(req, res));
 router.post("/createNewChat", (req, res) => userController.createNewChat(req, res));
