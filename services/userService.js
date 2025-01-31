@@ -390,8 +390,8 @@ export class UserService {
                     if: { $eq: [operand, "add"] },
                     then: {
                       $concatArrays: [
-                        "$cart",
                         [{ goodId: goodId, count: 1, choice: true }],
+                        "$cart",
                       ],
                     },
                     else: "$cart",
@@ -596,7 +596,7 @@ export class UserService {
                 $cond: {
                   if: "$isExisting",
                   then: { $setDifference: ["$favorites", [goodId]] },
-                  else: { $concatArrays: ["$favorites", [goodId]] },
+                  else: { $concatArrays: [[goodId], "$favorites"] },
                 },
               },
             },
