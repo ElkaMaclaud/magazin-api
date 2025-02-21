@@ -298,14 +298,8 @@ export class GoodService {
         },
       },
       {
-        $unwind: {
-          path: "$seller",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
         $addFields: {
-          seller: "$seller"
+          seller: { $arrayElemAt: ["$seller", 0] }
         }
       },
       {

@@ -260,7 +260,7 @@ export class UserService {
   }
 
   async createNewChat(dto) {
-    const { userId, unprocessedId, unprocessedUserTitle, titleId } = dto
+    const { userId, id: unprocessedId, userTitle:unprocessedUserTitle, titleId } = dto
     const id = unprocessedId.replace(/^\\+|\\+$/g, '').trim()
     const userTitle = unprocessedUserTitle.replace(/^\\+|\\+$/g, '').trim()
     
