@@ -242,7 +242,7 @@ export class UserService {
           {
             $set: {
               publik: {
-                $mergeObjects: ["$publik", { name: dto.name }],
+                $mergeObjects: ["$publik", { name: dto.name }], //{ $set: {"publik.name": dto.name}}
               },
               privates: {
                 $mergeObjects: ["$privates", { phone: dto.phone }],
@@ -485,8 +485,8 @@ export class UserService {
     const payload = { email: fakeEmail }
     const access_token = jwt.sign(payload, process.env.JWT_SECRET)
     return this.updateGoodTocart(fakeEmail, id, "add", access_token)
-
   }
+  
   async toggleSelect(email, goodId) {
     const updated = await UserModel
       .findOneAndUpdate(
