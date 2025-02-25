@@ -1,3 +1,4 @@
+import { errorMessageServer } from '../consts.js';
 import { GoodService } from '../services/goodService.js';
 
 export class GoodController {
@@ -18,8 +19,12 @@ export class GoodController {
             }
             const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, "sale", options);
             return res.json(goods);
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
@@ -36,8 +41,12 @@ export class GoodController {
             }
             const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, "discount", options);
             return res.json(goods);
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
@@ -51,8 +60,12 @@ export class GoodController {
             // }
             const good = await this.goodModel.getGoodByIdForUser(id, email);
             return res.json(good);
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
@@ -67,8 +80,12 @@ export class GoodController {
             }
             const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, { category }, options);
             return res.json(goods);
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
@@ -85,8 +102,12 @@ export class GoodController {
             }
             const goods = await this.goodModel.getGoodsByDiscountСlassificationUser(email, { keyWord }, options);
             return res.json(goods);
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
@@ -99,8 +120,12 @@ export class GoodController {
 
             const goods = await this.goodModel.getGoodsByIds(dto, options);
             return res.json(goods);
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
@@ -109,16 +134,24 @@ export class GoodController {
             const dto = req.body
             await this.goodModel.createSelers(dto)
             return res.json({ success: true, message: "Успешно!" })
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 
     async getAllGoods(req, res) {
         try {
             return res.json(await this.goodModel.getAllGoods())
-        } catch (error) {
-            return res.status(403).json({ success: false, message: error })
+        } catch (err) {
+            const statusCode = err.status || 500;
+            return res.status(statusCode).json({
+                success: false, 
+                message: err.message || errorMessageServer,
+            });
         }
     }
 }

@@ -1,0 +1,1 @@
+export const errorMessageServer = "An unexpected error occurred"; 

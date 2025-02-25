@@ -1,6 +1,7 @@
 import { UserService } from "../services/userService.js";
 import { ALREADY_REGISTERED_ERROR } from "../constants.js";
 import { BadRequestException } from "../errors/BadRequestException.js"
+import { errorMessageServer } from "../consts.js";
 
 export class UserController {
   constructor() {
@@ -23,7 +24,8 @@ export class UserController {
     } catch (err) {
       const statusCode = err.status || 401;
       return res.status(statusCode).json({
-        message: err.message,
+        success: false, 
+        message: err.message || errorMessageServer,
       });
     }
   }
@@ -35,8 +37,12 @@ export class UserController {
       const { offset, limit } = req.query;
       const options = { offset, limit };
       return res.json(await this.userService.getCart(email, options));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -46,8 +52,12 @@ export class UserController {
       const { offset, limit } = req.query;
       const options = { offset, limit };
       return res.json(await this.userService.getFavorites(email, options));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -57,8 +67,12 @@ export class UserController {
       const { offset, limit } = req.query;
       const options = { offset, limit };
       return res.json(await this.userService.getOrders(email, options));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -67,8 +81,12 @@ export class UserController {
       const email = req.userEmail;
       const dto = req.body;
       return res.json(await this.userService.selectAll(email, dto.on));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -76,8 +94,12 @@ export class UserController {
     try {
       const email = req.userEmail;
       return res.json(await this.userService.getUserData(email));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -85,8 +107,12 @@ export class UserController {
     try {
       const email = req.userEmail;
       return res.json(await this.userService.getAllChats(email));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -96,8 +122,12 @@ export class UserController {
       const dto = req.body;
       const result = await this.userService.updateUserData(dto, email);
       return res.json(result);
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -106,8 +136,12 @@ export class UserController {
       const dto = req.body;
       const result = await this.userService.createNewChat(dto)
       return res.json(result)
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -117,8 +151,12 @@ export class UserController {
       const dto = req.body;
       const result = await this.userService.updateDelivery(dto, email);
       return res.json(result);
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -127,8 +165,12 @@ export class UserController {
       const email = req.userEmail;
       const result = await this.userService.deleteSelected(email);
       return res.json(result);
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -138,8 +180,12 @@ export class UserController {
       const dto = req.body;
       const id = dto.id;
       return res.json(await this.userService.addToCart(id, email));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -148,8 +194,12 @@ export class UserController {
       const dto = req.body;
       const id = dto.id;
       return res.json(await this.userService.addToCart(id));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -159,8 +209,12 @@ export class UserController {
       const dto = req.body;
       const id = dto.id;
       return res.json(await this.userService.toggleSelect(email, id));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -170,8 +224,12 @@ export class UserController {
       const dto = req.body;
       const id = dto.id;
       return res.json(await this.userService.toggleFavorites(id, email));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -180,8 +238,12 @@ export class UserController {
       const dto = req.body;
       const id = dto.id;
       return res.json(await this.userService.toggleFavorites(id));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -190,8 +252,12 @@ export class UserController {
       const email = req.userEmail;
       const dto = req.body;
       return res.json(await this.userService.addOrder(email, dto.ids));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -201,8 +267,12 @@ export class UserController {
       const dto = req.body;
       const id = dto.id;
       return res.json(await this.userService.subFromCart(email, id));
-    } catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    } catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 
@@ -214,8 +284,12 @@ export class UserController {
       const result = await this.userService.removeFromCart(email, id);
       return res.json(result);
     }
-    catch (error) {
-      return res.status(403).json({ success: false, message: error })
+    catch (err) {
+      const statusCode = err.status || 500;
+      return res.status(statusCode).json({
+        success: false, 
+        message: err.message || errorMessageServer,
+      });
     }
   }
 }
